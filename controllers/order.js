@@ -6,7 +6,7 @@ exports.orderById = (req, res, next, id) => {
     .populate("products.product", "name price")
     .exec((err, order) => {
       if (err || !order) {
-        return res.status(400).json({
+        return res.status(404).json({
           error: errorHandler(err),
         });
       }
@@ -20,11 +20,11 @@ exports.create = (req, res) => {
   const order = new Order(req.body.order);
   order.save((error, data) => {
     if (error) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: errorHandler(error),
       });
     }
-    res.json(data);
+    res.status(200).json(data);
   });
 };
 
@@ -34,11 +34,11 @@ exports.listOrders = (req, res) => {
     .sort("-created")
     .exec((err, orders) => {
       if (err) {
-        return res.status(400).json({
+        return res.status(404).json({
           error: errorHandler(error),
         });
       }
-      res.json(orders);
+      res.status(200).json(orders);
     });
 };
 

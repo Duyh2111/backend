@@ -47,7 +47,7 @@ exports.addOrderToHistory = (req, res, next) => {
             name: i.name,
             description: i.description,
             category: i.category,
-            quantity: i.count,
+            countInStock: i.count,
             transaction_id: req.body.order.transaction_id,
             amount: req.body.order.amount
         });

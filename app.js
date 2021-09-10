@@ -18,21 +18,17 @@ const orderRoutes = require("./routes/order");
 // app
 const app = express();
 
-// db
+// Connect DB
 mongoose
   .connect(
-    "mongodb+srv://db:db@cluster0.6feps.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+    "mongodb+srv://db:db@cluster0.bi8l5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
     }
   )
-  .then(() => console.log("DB Connected"));
-
-app.get("/", (req, res) => {
-  res.send("hello Duy");
-});
+  .then(() => console.log("MongoDB Connected"));
 
 // middlewares
 app.use(morgan("dev"));
