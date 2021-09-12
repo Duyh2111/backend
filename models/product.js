@@ -30,11 +30,11 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    // branch: {
-    //     type: ObjectId,
-    //     ref: "Branch",
-    //     required: true,
-    //   },
+    branch: {
+        type: ObjectId,
+        ref: "Branch",
+        required: true,
+      },
     countInStock: {
       type: Number,
       required: true,

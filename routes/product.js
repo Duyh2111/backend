@@ -8,7 +8,8 @@ const {
   remove,
   update,
   list,
-  listRelated,
+  listCategoriesRelated,
+  listBranchRelated,
   listCategories,
   listBranches,
   listBySearch,
@@ -26,7 +27,8 @@ router.put("/product/:productId/:userId", requireSignin, isAdmin, update);
 
 router.get("/products", list);
 router.get("/products/search", listSearch);
-router.get("/products/related/:productId", listRelated);
+router.get("/products/relatedCategory/:productId", listCategoriesRelated);
+router.get("/products/relatedBranch/:productId", listBranchRelated);
 router.get("/products/categories", listCategories);
 router.get("/products/branches", listBranches);
 router.post("/products/by/search", listBySearch);

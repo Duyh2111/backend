@@ -6,7 +6,7 @@ const { errorHandler } = require("../helpers/dbErrorHandler");
 
 exports.productById = (req, res, next, id) => {
   Product.findById(id)
-    .populate("category")
+    .populate("category", "branch")
     .exec((err, product) => {
       if (err || !product) {
         return res.status(404).json({
@@ -36,7 +36,7 @@ exports.create = (req, res) => {
 
       if (files.photo) {
           // console.log("FILES PHOTO: ", files.photo);
-          if (files.photo.size > 1000000) {
+          if (files.photo.size > 5000000) {
               return res.status(400).json({
                   error: 'Image should be less than 1mb in size'
               });
@@ -123,7 +123,7 @@ exports.list = (req, res) => {
 
   Product.find()
     .select("-photo")
-    .populate("category")
+    .populate("category", "branch")
     .sort([[sortBy, order]])
     .limit(limit)
     .exec((err, product) => {
@@ -141,12 +141,28 @@ exports.list = (req, res) => {
  * other products that has the same category, will be returned
  */
 
-exports.listRelated = (req, res) => {
+exports.listCategoriesRelated = (req, res) => {
   let limit = req.query.limit ? parseInt(req.query.limit) : 8;
 
   Product.find({ _id: { $ne: req.product }, category: req.product.category })
     .limit(limit)
     .populate("category", "_id name")
+    .exec((err, product) => {
+      if (err) {
+        return res.status(400).json({
+          error: "Products not found",
+        });
+      }
+      res.json(product);
+    });
+};
+
+exports.listBranchRelated = (req, res) => {
+  let limit = req.query.limit ? parseInt(req.query.limit) : 8;
+
+  Product.find({ _id: { $ne: req.product }, branch: req.product.branch })
+    .limit(limit)
+    .populate("branch", "_id name")
     .exec((err, product) => {
       if (err) {
         return res.status(400).json({
@@ -164,7 +180,7 @@ exports.listCategories = (req, res) => {
         error: "Categories not found",
       });
     }
-    res.json(categories);
+    res.status(200).json({categories});
   });
 };
 
@@ -175,7 +191,7 @@ exports.listBranches = (req, res) => {
         error: "Branches not found",
       });
     }
-    res.json(branches);
+    res.status(200).json(branches);
   });
 };
 
@@ -214,7 +230,7 @@ exports.listBySearch = (req, res) => {
 
   Product.find(findArgs)
     .select("-photo")
-    .populate("category, branch")
+    .populate("category", "branch")
     .sort([[sortBy, order]])
     .skip(skip)
     .limit(limit)
