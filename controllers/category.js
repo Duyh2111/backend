@@ -21,7 +21,7 @@ exports.create = (req, res) => {
       return res.status(404).json({
         error: errorHandler(err),
       });
-    }
+    }   
     res.json({ data });
   });
 };

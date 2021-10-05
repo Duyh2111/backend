@@ -26,34 +26,34 @@ exports.read = (req, res) => {
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
-  form.parse(req, (err, fields, files) => {
-      if (err) {
-          return res.status(400).json({
-              error: 'Image could not be uploaded'
-          });
-      }
-      let product = new Product(fields);
-
-      if (files.photo) {
-          // console.log("FILES PHOTO: ", files.photo);
-          if (files.photo.size > 5000000) {
-              return res.status(400).json({
-                  error: 'Image should be less than 1mb in size'
-              });
-          }
-          product.photo.data = fs.readFileSync(files.photo.path);
-          product.photo.contentType = files.photo.type;
-      }
-
-      product.save((err, result) => {
-          if (err) {
-              console.log('PRODUCT CREATE ERROR ', err);
-              return res.status(400).json({
-                  error: errorHandler(err)
-              });
-          }
-          res.json(result);
+  form.parse(req, (err, fields, files, price) => {
+    if (err) {
+      return res.status(400).json({
+        error: "Image could not be uploaded",
       });
+    }
+
+    let product = new Product(fields);
+
+    if (files.photo) {
+      // console.log("FILES PHOTO: ", files.photo);
+      if (files.photo.size > 5000000) {
+        return res.status(400).json({
+          error: "Image should be less than 1mb in size",
+        });
+      }
+      product.photo.data = fs.readFileSync(files.photo.path);
+      product.photo.contentType = files.photo.type;
+    }
+
+    product.save((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: errorHandler(err),
+        });
+      }
+      res.json(result);
+    });
   });
 };
 
@@ -78,7 +78,7 @@ exports.update = (req, res) => {
   form.parse(req, (err, fields, files) => {
     if (err) {
       return res.status(400).json({
-        error: "Can not upload",
+        error: "Image could not be uploaded",
       });
     }
 
@@ -88,23 +88,20 @@ exports.update = (req, res) => {
     if (files.photo) {
       if (files.photo.size > 1000000) {
         return res.status(400).json({
-          error: "Can not upload. Image less than 1mb",
+          error: "Image should be less than 1mb in size",
         });
       }
       product.photo.data = fs.readFileSync(files.photo.path);
       product.photo.contentType = files.photo.type;
     }
 
-    product.save((err, product) => {
+    product.save((err, result) => {
       if (err) {
         return res.status(400).json({
           error: errorHandler(err),
         });
       }
-      res.status(200).json({
-        message: "Upload successful",
-        product,
-      });
+      res.json(result);
     });
   });
 };
@@ -166,7 +163,7 @@ exports.listBranchRelated = (req, res) => {
     .exec((err, product) => {
       if (err) {
         return res.status(400).json({
-          error: "Products not found",
+          error: "Branch not found",
         });
       }
       res.json(product);
@@ -180,7 +177,7 @@ exports.listCategories = (req, res) => {
         error: "Categories not found",
       });
     }
-    res.status(200).json({categories});
+    res.status(200).json({ categories });
   });
 };
 
@@ -191,7 +188,7 @@ exports.listBranches = (req, res) => {
         error: "Branches not found",
       });
     }
-    res.status(200).json(branches);
+    res.status(200).json({branches});
   });
 };
 

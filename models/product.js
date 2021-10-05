@@ -20,10 +20,9 @@ const productSchema = new mongoose.Schema(
       maxlength: 10000,
     },
     price: {
-      type: Number,
-      trim: true,
+      type: Number,        
       required: true,
-      maxlength: 10,
+      min: 1, max: 30000
     },
     category: {
       type: ObjectId,
@@ -31,14 +30,15 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     branch: {
-        type: ObjectId,
-        ref: "Branch",
-        required: true,
-      },
+      type: ObjectId,
+      ref: "Branch",
+      required: true,
+    },
     countInStock: {
       type: Number,
       required: true,
       default: 0,
+      min: 1, max: 30000
     },
     sold: {
       type: Number,
@@ -54,12 +54,12 @@ const productSchema = new mongoose.Schema(
     },
     rating: {
         type: Number,
-        required: true,
+        required: false,
         default: 0,
       },
       numReviews: {
         type: Number,
-        required: true,
+        required: false,
         default: 0,
       },
   },
