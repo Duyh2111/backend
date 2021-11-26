@@ -6,7 +6,7 @@ exports.userById = (req, res, next, id) => {
   User.findById(id).exec((err, user) => {
     if (err || !user) {
       return res.status(404).json({
-        error: "User not found",
+        error: "User not found!!",
       });
     }
     req.profile = user;
@@ -25,15 +25,16 @@ exports.update = (req, res) => {
     { _id: req.profile._id },
     { $set: req.body },
     { new: true },
-    (err, u) => {
-      if (err) {
-        return res.status(401).json({
-          error: "You are not authorized",
+    (err, update) => {
+      if (!err) {
+        update.hashed_password = undefined;
+        update.salt = undefined;
+        res.status(200).json(update);
+      } else {
+        res.status(401).json({
+          error: "Not authorized",
         });
       }
-      u.hashed_password = undefined;
-      u.salt = undefined;
-      res.status(200).json(u);
     }
   );
 };
@@ -57,10 +58,10 @@ exports.addOrderToHistory = (req, res, next) => {
     { _id: req.profile._id },
     { $push: { history: history } },
     { new: true },
-    (error, order) => {
-      if (error) {
+    (err, order) => {
+      if (err) {
         return res.status(404).json({
-          error: "Could not update user purchase history",
+          error: "Could not update",
         });
       }
       next();
@@ -73,11 +74,10 @@ exports.history = (req, res) => {
     .populate("user", "_id name")
     .sort("-created")
     .exec((err, orders) => {
-      if (err) {
-        return res.status(404).json({
-          error: errorHandler(err),
-        });
+      if (!err) {
+        res.status(200).json(orders);
+      } else {
+        res.status(404).json({ error: errorHandler(err) });
       }
-      res.status(200).json(orders);
     });
 };

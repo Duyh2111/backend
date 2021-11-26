@@ -18,12 +18,12 @@ const OrderSchema = new mongoose.Schema(
   {
     products: [CartItemSchema],
     transaction_id: {},
-    amount: { 
-      type: Number 
+    amount: {
+      type: Number,
     },
-    address: { 
-      type: String, 
-      required: true 
+    address: {
+      type: String,
+      required: true,
     },
     status: {
       type: String,
@@ -34,7 +34,7 @@ const OrderSchema = new mongoose.Schema(
         "Shipped",
         "Delivered",
         "Cancelled",
-      ], // enum means string objects
+      ],
     },
     updated: Date,
     user: { type: ObjectId, ref: "User" },

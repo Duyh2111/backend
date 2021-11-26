@@ -14,7 +14,7 @@ exports.branchById = (req, res, next, id) => {
   });
 };
 
-exports.create = (req, res) => {
+exports.createBranch = (req, res) => {
   const branch = new Branch(req.body);
   branch.save((err, data) => {
     if (!err) {
@@ -25,11 +25,11 @@ exports.create = (req, res) => {
   });
 };
 
-exports.read = (req, res) => {
+exports.readBranch = (req, res) => {
   return res.status(200).json(req.branch);
 };
 
-exports.update = (req, res) => {
+exports.updateBranch = (req, res) => {
   const branch = req.branch;
   branch.name = req.body.name;
   branch.save((err, branch) => {
@@ -43,7 +43,7 @@ exports.update = (req, res) => {
   });
 };
 
-exports.remove = (req, res) => {
+exports.removeBranch = (req, res) => {
   const branch = req.branch;
   Product.find({ branch }).exec((err, data) => {
     if (data.length >= 1) {
@@ -66,7 +66,7 @@ exports.remove = (req, res) => {
   });
 };
 
-exports.list = (req, res) => {
+exports.listAllBranches = (req, res) => {
   Branch.find().exec((err, data) => {
     if (!err) {
       res.status(200).json(data);

@@ -18,12 +18,12 @@ exports.productById = (req, res, next, id) => {
     });
 };
 
-exports.read = (req, res) => {
+exports.readProduct = (req, res) => {
   req.product.photo = undefined;
   return res.status(200).json(req.product);
 };
 
-exports.create = (req, res) => {
+exports.createProduct = (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
   form.parse(req, (err, fields, files, price) => {
@@ -36,7 +36,6 @@ exports.create = (req, res) => {
     let product = new Product(fields);
 
     if (files.photo) {
-      // console.log("FILES PHOTO: ", files.photo);
       if (files.photo.size > 5000000) {
         return res.status(400).json({
           error: "Image should be less than 1mb in size",
@@ -47,32 +46,37 @@ exports.create = (req, res) => {
     }
 
     product.save((err, result) => {
-      if (err) {
-        return res.status(400).json({
+      if (!err) {
+        res.status(200).json({
+          message: "Product deleted successfully",
+          result,
+        });
+      } else {
+        res.status(400).json({
           error: errorHandler(err),
         });
       }
-      res.json(result);
     });
   });
 };
 
-exports.remove = (req, res) => {
+exports.removeProduct = (req, res) => {
   let product = req.product;
   product.remove((err, d) => {
-    if (err) {
-      return res.status(400).json({
+    if (!err) {
+      res.status(200).json({
+        status: "OK",
+        message: "Product deleted successfully",
+      });
+    } else {
+      res.status(400).json({
         error: errorHandler(err),
       });
     }
-    res.status(200).json({
-      status: "OK",
-      message: "Product deleted successfully",
-    });
   });
 };
 
-exports.update = (req, res) => {
+exports.updateProduct = (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
   form.parse(req, (err, fields, files) => {
@@ -96,12 +100,13 @@ exports.update = (req, res) => {
     }
 
     product.save((err, result) => {
-      if (err) {
-        return res.status(400).json({
+      if (!err) {
+        res.json({ message: "Successfully", result });
+      } else {
+        res.status(400).json({
           error: errorHandler(err),
         });
       }
-      res.json(result);
     });
   });
 };
@@ -113,7 +118,7 @@ exports.update = (req, res) => {
  * if no params are sent, then all products are returned
  */
 
-exports.list = (req, res) => {
+exports.listAllProducts = (req, res) => {
   let order = req.query.order ? req.query.order : "asc";
   let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
   let limit = req.query.limit ? parseInt(req.query.limit) : 8;
@@ -124,19 +129,15 @@ exports.list = (req, res) => {
     .sort([[sortBy, order]])
     .limit(limit)
     .exec((err, product) => {
-      if (err) {
-        return res.status(404).json({
+      if (!err) {
+        res.status(200).json(product);
+      } else {
+        res.status(404).json({
           error: "Products not found",
         });
       }
-      res.json(product);
     });
 };
-
-/**
- * it will find the products based on the req product category
- * other products that has the same category, will be returned
- */
 
 exports.listCategoriesRelated = (req, res) => {
   let limit = req.query.limit ? parseInt(req.query.limit) : 8;
@@ -145,12 +146,13 @@ exports.listCategoriesRelated = (req, res) => {
     .limit(limit)
     .populate("category", "_id name")
     .exec((err, product) => {
-      if (err) {
-        return res.status(400).json({
+      if (!err) {
+        res.status(200).json(product);
+      } else {
+        res.status(400).json({
           error: "Products not found",
         });
       }
-      res.json(product);
     });
 };
 
@@ -161,34 +163,38 @@ exports.listBranchRelated = (req, res) => {
     .limit(limit)
     .populate("branch", "_id name")
     .exec((err, product) => {
-      if (err) {
-        return res.status(400).json({
+      if (!err) {
+        res.status(200).json(product);
+      } else {
+        res.status(400).json({
           error: "Branch not found",
         });
       }
-      res.json(product);
     });
 };
 
-exports.listCategories = (req, res) => {
+exports.listAllCategories = (req, res) => {
   Product.distinct("category", {}, (err, categories) => {
-    if (err) {
-      return res.status(400).json({
-        error: "Categories not found",
+    if (!err) {
+      res.status(200).json({
+        message: "Successfully",
+        categories,
+      });
+    } else {
+      res.status(404).json({
+        error: "Failure",
       });
     }
-    res.status(200).json({ categories });
   });
 };
 
-exports.listBranches = (req, res) => {
+exports.listAllBranches = (req, res) => {
   Product.distinct("branch", {}, (err, branches) => {
-    if (err) {
-      return res.status(400).json({
-        error: "Branches not found",
-      });
+    if (!err) {
+      res.status(200).json({ branches });
+    } else {
+      res.status(404).json({ error: "Failure" });
     }
-    res.status(200).json({branches});
   });
 };
 
@@ -206,9 +212,6 @@ exports.listBySearch = (req, res) => {
   let limit = req.body.limit ? parseInt(req.body.limit) : 100;
   let skip = parseInt(req.body.skip);
   let findArgs = {};
-
-  // console.log(order, sortBy, limit, skip, req.body.filters);
-  // console.log("findArgs", findArgs);
 
   for (let key in req.body.filters) {
     if (req.body.filters[key].length > 0) {
@@ -232,19 +235,20 @@ exports.listBySearch = (req, res) => {
     .skip(skip)
     .limit(limit)
     .exec((err, data) => {
-      if (err) {
-        return res.status(400).json({
+      if (!err) {
+        res.json({
+          count: data.length,
+          data,
+        });
+      } else {
+        res.status(400).json({
           error: "Products not found",
         });
       }
-      res.json({
-        count: data.length,
-        data,
-      });
     });
 };
 
-exports.photo = (req, res, next) => {
+exports.photoProduct = (req, res, next) => {
   if (req.product.photo.data) {
     res.set("Content-Type", req.product.photo.contentType);
     return res.send(req.product.photo.data);
@@ -252,7 +256,7 @@ exports.photo = (req, res, next) => {
   next();
 };
 
-exports.listSearch = (req, res) => {
+exports.productListSearch = (req, res) => {
   // create query object to hold search value and category value
   const query = {};
   // assign search value to query.name
@@ -265,12 +269,13 @@ exports.listSearch = (req, res) => {
     // find the product based on query object with 2 properties
     // search and category
     Product.find(query, (err, products) => {
-      if (err) {
-        return res.status(400).json({
+      if (!err) {
+        return res.status(200).json(products);
+      } else {
+        res.status(404).json({
           error: errorHandler(err),
         });
       }
-      res.json(products);
     }).select("-photo");
   }
 };
@@ -293,42 +298,4 @@ exports.decreaseQuantity = (req, res, next) => {
     }
     next();
   });
-};
-
-exports.createProductReview = async (req, res) => {
-  const { rating, comment } = req.body;
-
-  const product = await Product.findById(req.params.id);
-
-  if (product) {
-    const alreadyReviewed = product.reviews.find(
-      (r) => r.user.toString() === req.user._id.toString()
-    );
-
-    if (alreadyReviewed) {
-      res.status(400);
-      throw new Error("Product already reviewed");
-    }
-
-    const review = {
-      name: req.user.name,
-      rating: Number(rating),
-      comment,
-      user: req.user._id,
-    };
-
-    product.reviews.push(review);
-
-    product.numReviews = product.reviews.length;
-
-    product.rating =
-      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-      product.reviews.length;
-
-    await product.save();
-    res.status(201).json({ message: "Review added" });
-  } else {
-    res.status(404);
-    throw new Error("Product not found");
-  }
 };

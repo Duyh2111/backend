@@ -20,9 +20,10 @@ const productSchema = new mongoose.Schema(
       maxlength: 10000,
     },
     price: {
-      type: Number,        
+      type: Number,
       required: true,
-      min: 1, max: 30000
+      min: 1,
+      max: 30000,
     },
     category: {
       type: ObjectId,
@@ -38,7 +39,8 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
-      min: 1, max: 30000
+      min: 1,
+      max: 30000,
     },
     sold: {
       type: Number,
@@ -52,16 +54,6 @@ const productSchema = new mongoose.Schema(
       required: false,
       type: Boolean,
     },
-    rating: {
-        type: Number,
-        required: false,
-        default: 0,
-      },
-      numReviews: {
-        type: Number,
-        required: false,
-        default: 0,
-      },
   },
   { timestamps: true }
 );

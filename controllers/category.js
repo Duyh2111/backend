@@ -14,7 +14,7 @@ exports.categoryById = (req, res, next, id) => {
   });
 };
 
-exports.create = (req, res) => {
+exports.createCategory = (req, res) => {
   const category = new Category(req.body);
   category.save((err, data) => {
     if (!err) {
@@ -25,11 +25,11 @@ exports.create = (req, res) => {
   });
 };
 
-exports.read = (req, res) => {
+exports.readCategory = (req, res) => {
   return res.status(200).json(req.category);
 };
 
-exports.update = (req, res) => {
+exports.updateCategory = (req, res) => {
   const category = req.category;
   category.name = req.body.name;
   category.save((err, category) => {
@@ -43,7 +43,7 @@ exports.update = (req, res) => {
   });
 };
 
-exports.remove = (req, res) => {
+exports.removeCategory = (req, res) => {
   const category = req.category;
   Product.find({ category }).exec((err, data) => {
     if (data.length >= 1) {
@@ -66,7 +66,7 @@ exports.remove = (req, res) => {
   });
 };
 
-exports.list = (req, res) => {
+exports.listAllCategories = (req, res) => {
   Category.find().exec((err, data) => {
     if (!err) {
       res.status(200).json(data);

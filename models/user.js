@@ -16,14 +16,14 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    hashed_password: {
-      type: String,
-      required: true,
-    },
     salt: String,
     role: {
       type: Number,
       default: 0,
+    },
+    hashed_password: {
+      type: String,
+      required: true,
     },
     history: {
       type: Array,

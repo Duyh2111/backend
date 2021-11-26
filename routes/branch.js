@@ -2,21 +2,31 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  create,
+  createBranch,
   branchById,
-  read,
-  update,
-  remove,
-  list,
+  readBranch,
+  updateBranch,
+  removeBranch,
+  listAllBranches,
 } = require("../controllers/branch");
 const { requireSignin, isAdmin } = require("../controllers/auth");
 const { userById } = require("../controllers/user");
 
-router.get("/branch/:branchId", read);
-router.post("/branch/create/:userId", requireSignin, isAdmin, create);
-router.put("/branch/:branchId/:userId", requireSignin, isAdmin, update);
-router.delete("/branch/:branchId/:userId", requireSignin, isAdmin, remove);
-router.get("/branches", list);
+router.get("/adminBranch/:branchId", readBranch);
+router.post("/createBranch/:userId", requireSignin, isAdmin, createBranch);
+router.put(
+  "/updateBranch/:branchId/:userId",
+  requireSignin,
+  isAdmin,
+  updateBranch
+);
+router.delete(
+  "/deleteBranch/:branchId/:userId",
+  requireSignin,
+  isAdmin,
+  removeBranch
+);
+router.get("/branches", listAllBranches);
 
 router.param("branchId", branchById);
 router.param("userId", userById);

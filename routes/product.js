@@ -2,41 +2,48 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  create,
+  createProduct,
   productById,
-  read,
-  remove,
-  update,
-  list,
+  readProduct,
+  removeProduct,
+  updateProduct,
+  listAllProducts,
   listCategoriesRelated,
   listBranchRelated,
-  listCategories,
-  listBranches,
+  listAllCategories,
+  listAllBranches,
   listBySearch,
-  photo,
-  listSearch,
-  createProductReview
+  photoProduct,
+  productListSearch,
 } = require("../controllers/product");
 const { requireSignin, isAdmin } = require("../controllers/auth");
 const { userById } = require("../controllers/user");
 
-router.get("/product/:productId", read);
-router.post("/product/create/:userId", requireSignin, isAdmin, create);
-router.delete("/product/:productId/:userId", requireSignin, isAdmin, remove);
-router.put("/product/:productId/:userId", requireSignin, isAdmin, update);
+router.get("/adminProduct/:productId", readProduct);
+router.post("/createProduct/:userId", requireSignin, isAdmin, createProduct);
+router.delete(
+  "/deleteProduct/:productId/:userId",
+  requireSignin,
+  isAdmin,
+  removeProduct
+);
+router.put(
+  "/updateProduct/:productId/:userId",
+  requireSignin,
+  isAdmin,
+  updateProduct
+);
 
-router.get("/products", list);
-router.get("/products/search", listSearch);
-router.get("/products/relatedCategory/:productId", listCategoriesRelated);
-router.get("/products/relatedBranch/:productId", listBranchRelated);
-router.get("/products/categories", listCategories);
-router.get("/products/branches", listBranches);
-router.post("/products/by/search", listBySearch);
-router.get("/product/photo/:productId", photo);
+router.get("/products", listAllProducts);
+router.get("/search", productListSearch);
+router.get("/relatedCategory/:productId", listCategoriesRelated);
+router.get("/relatedBranch/:productId", listBranchRelated);
+router.get("/categories", listAllCategories);
+router.get("/branches", listAllBranches);
+router.post("/by/search", listBySearch);
+router.get("/product/photo/:productId", photoProduct);
 
 router.param("userId", userById);
 router.param("productId", productById);
-
-router.post("/reviews", createProductReview);
 
 module.exports = router;

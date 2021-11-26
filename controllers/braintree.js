@@ -11,32 +11,32 @@ const gateway = new braintree.BraintreeGateway({
 
 exports.Token = (req, res) => {
   gateway.clientToken.generate({}, function (err, response) {
-    if (err) {
-      res.status(500).send(err);
-    } else {
+    if (!err) {
       res.send(response);
+    } else {
+      res.status(500).send(err);
     }
   });
 };
 
 exports.Payment = (req, res) => {
-    let nonceFromTheClient = req.body.paymentMethodNonce;
-    let amountFromTheClient = req.body.amount;
-    // charge
-    let newTransaction = gateway.transaction.sale(
-        {
-            amount: amountFromTheClient,
-            paymentMethodNonce: nonceFromTheClient,
-            options: {
-                submitForSettlement: true
-            }
-        },
-        (error, result) => {
-            if (error) {
-                res.status(500).json(error);
-            } else {
-                res.json(result);
-            }
-        }
-    );
+  let nonceFromTheClient = req.body.paymentMethodNonce;
+  let amountFromTheClient = req.body.amount;
+  // charge
+  let newTransaction = gateway.transaction.sale(
+    {
+      amount: amountFromTheClient,
+      paymentMethodNonce: nonceFromTheClient,
+      options: {
+        submitForSettlement: true,
+      },
+    },
+    (error, result) => {
+      if (!error) {
+        res.status(200).json(result);
+      } else {
+        res.status(500).json(error);
+      }
+    }
+  );
 };

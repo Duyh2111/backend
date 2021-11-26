@@ -19,12 +19,13 @@ exports.create = (req, res) => {
   req.body.order.user = req.profile;
   const order = new Order(req.body.order);
   order.save((error, data) => {
-    if (error) {
-      return res.status(404).json({
+    if (!error) {
+      return res.status(200).json(data);
+    } else {
+      res.status(404).json({
         error: errorHandler(error),
       });
     }
-    res.status(200).json(data);
   });
 };
 
@@ -33,12 +34,13 @@ exports.listOrders = (req, res) => {
     .populate("user", "_id name address")
     .sort("-created")
     .exec((err, orders) => {
-      if (err) {
-        return res.status(404).json({
+      if (!err) {
+        return res.status(200).json(orders);
+      } else {
+        res.status(404).json({
           error: errorHandler(error),
         });
       }
-      res.status(200).json(orders);
     });
 };
 
@@ -52,11 +54,12 @@ exports.updateStatus = (req, res) => {
     { $set: { status: req.body.status } },
     (err, order) => {
       if (err) {
-        return res.status(400).json({
+        return res.status(200).json(order);
+      } else {
+        res.status(400).json({
           error: errorHandler(err),
         });
       }
-      res.json(order);
     }
   );
 };
