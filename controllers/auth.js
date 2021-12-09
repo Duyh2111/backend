@@ -4,17 +4,19 @@ const expressJwt = require("express-jwt");
 const { errorHandler } = require("../helpers/dbErrorHandler");
 
 exports.signup = (req, res) => {
+  // console.log("req.body", req.body);
   const user = new User(req.body);
   user.save((err, user) => {
-    if (!err) {
-      user.salt = undefined;
-      user.hashed_password = undefined;
-      res.json({
-        user,
+    if (err) {
+      return res.status(400).json({
+        // error: errorHandler(err)
+        error: "Email is taken",
       });
     }
-    return res.status(400).json({
-      error: "Email is already exists",
+    user.salt = undefined;
+    user.hashed_password = undefined;
+    res.json({
+      user,
     });
   });
 };

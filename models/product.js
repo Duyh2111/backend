@@ -39,8 +39,8 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
-      min: 1,
-      max: 30000,
+      min: 0,
+      max: 300,
     },
     sold: {
       type: Number,
