@@ -27,6 +27,9 @@ router.delete(
   removeCategory
 );
 router.get("/categories", listAllCategories);
+
+// whenever there's a 'categoryId' in the route parameter,
+// call the categoryById middleware method
 router.param("categoryId", categoryById);
 router.param("userId", userById);
 

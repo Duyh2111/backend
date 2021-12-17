@@ -16,6 +16,7 @@ exports.orderById = (req, res, next, id) => {
 };
 
 exports.create = (req, res) => {
+  // get the user from the frontend and assign it to the value req.profile
   req.body.order.user = req.profile;
   const order = new Order(req.body.order);
   order.save((error, data) => {
@@ -53,7 +54,7 @@ exports.updateStatus = (req, res) => {
     { _id: req.body.orderId },
     { $set: { status: req.body.status } },
     (err, order) => {
-      if (err) {
+      if (order) {
         return res.status(200).json(order);
       } else {
         res.status(400).json({

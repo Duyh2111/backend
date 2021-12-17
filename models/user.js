@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // virtual field
+// encrypts the password with uuid v4
 userSchema
   .virtual("password")
   .set(function (password) {

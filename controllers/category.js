@@ -30,7 +30,9 @@ exports.readCategory = (req, res) => {
 };
 
 exports.updateCategory = (req, res) => {
+  // Get the category from req.category
   const category = req.category;
+  // Set the category name property to request body name object
   category.name = req.body.name;
   category.save((err, category) => {
     if (!err) {
@@ -44,6 +46,7 @@ exports.updateCategory = (req, res) => {
 };
 
 exports.removeCategory = (req, res) => {
+  // Get the category from req.category
   const category = req.category;
   Product.find({ category }).exec((err, data) => {
     if (data.length >= 1) {

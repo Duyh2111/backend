@@ -5,6 +5,7 @@ const Product = require("../models/product");
 const { errorHandler } = require("../helpers/dbErrorHandler");
 
 exports.productById = (req, res, next, id) => {
+  // find the product in the Product model using the findById() method
   Product.findById(id)
     .populate("category", "branch")
     .exec((err, product) => {
@@ -13,6 +14,7 @@ exports.productById = (req, res, next, id) => {
           error: "Product not found",
         });
       }
+      // if a product is found, set the product info to product
       req.product = product;
       next();
     });
@@ -20,6 +22,7 @@ exports.productById = (req, res, next, id) => {
 
 exports.readProduct = (req, res) => {
   req.product.photo = undefined;
+  // sends back a json response of req.product
   return res.status(200).json(req.product);
 };
 
@@ -34,7 +37,8 @@ exports.createProduct = (req, res) => {
     }
 
     let product = new Product(fields);
-
+    // checks for image size less than 5mb
+    // if greater than 5mb, return error
     if (files.photo) {
       if (files.photo.size > 5000000) {
         return res.status(400).json({
@@ -44,7 +48,7 @@ exports.createProduct = (req, res) => {
       product.photo.data = fs.readFileSync(files.photo.path);
       product.photo.contentType = files.photo.type;
     }
-
+    // save the product, if error => response with error message
     product.save((err, result) => {
       if (!err) {
         res.status(200).json({
@@ -61,6 +65,8 @@ exports.createProduct = (req, res) => {
 };
 
 exports.removeProduct = (req, res) => {
+  // Get the product from req.product
+  // call a remove function to delete the product
   let product = req.product;
   product.remove((err, d) => {
     if (!err) {
@@ -85,7 +91,8 @@ exports.updateProduct = (req, res) => {
         error: "Image could not be uploaded",
       });
     }
-
+    // get the product from req.product
+    // using the extend() method from the lodash library to update product with new fields
     let product = req.product;
     product = _.extend(product, fields);
 
@@ -119,15 +126,21 @@ exports.updateProduct = (req, res) => {
  */
 
 exports.listAllProducts = (req, res) => {
-  let order = req.query.order ? req.query.order : "asc";
+  // lists all the products based on the request query params
+  let order = req.query.order ? req.query.order : "asc"; // "an ascending sort" => values are sorted in A to Z order
   let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
-  let limit = req.query.limit ? parseInt(req.query.limit) : 8;
+  // Use the limit param from the request query, if given. Else set a default value param
+  let limit = req.query.limit ? parseInt(req.query.limit) : 20;
 
   Product.find()
     .select("-photo")
+    // call populate() method to populate the category property
     .populate("category", "branch")
+    // call sort() method to sort products by 'sortBy' and 'order'
     .sort([[sortBy, order]])
+    // set the number of products returned
     .limit(limit)
+    // execute the callback function
     .exec((err, product) => {
       if (!err) {
         res.status(200).json(product);
@@ -141,9 +154,12 @@ exports.listAllProducts = (req, res) => {
 
 exports.listCategoriesRelated = (req, res) => {
   let limit = req.query.limit ? parseInt(req.query.limit) : 8;
-
+  //  find all the products in the category based on the product id
+  // EXCEPT the requested product itself
   Product.find({ _id: { $ne: req.product }, category: req.product.category })
+    // set the number of products returned
     .limit(limit)
+    // call populate() method to populate the category property
     .populate("category", "_id name")
     .exec((err, product) => {
       if (!err) {
@@ -174,6 +190,7 @@ exports.listBranchRelated = (req, res) => {
 };
 
 exports.listAllCategories = (req, res) => {
+  // distinct() method to get the 'category' that is used on product model
   Product.distinct("category", {}, (err, categories) => {
     if (!err) {
       res.status(200).json({
@@ -189,6 +206,7 @@ exports.listAllCategories = (req, res) => {
 };
 
 exports.listAllBranches = (req, res) => {
+  // // distinct() method to get the 'branch' that is used on product model
   Product.distinct("branch", {}, (err, branches) => {
     if (!err) {
       res.status(200).json({ branches });
@@ -207,12 +225,14 @@ exports.listAllBranches = (req, res) => {
  */
 
 exports.listBySearch = (req, res) => {
+  // define the order, sortBy, limit, skip, and findArgs. Use the params from
+  // the request query if they are given
   let order = req.body.order ? req.body.order : "desc";
   let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
   let limit = req.body.limit ? parseInt(req.body.limit) : 100;
   let skip = parseInt(req.body.skip);
   let findArgs = {};
-
+  console.log(req.body.filters);
   for (let key in req.body.filters) {
     if (req.body.filters[key].length > 0) {
       if (key === "price") {
@@ -227,7 +247,7 @@ exports.listBySearch = (req, res) => {
       }
     }
   }
-
+  // find products based on the findArgs object
   Product.find(findArgs)
     .select("-photo")
     .populate("category", "branch")
@@ -249,7 +269,9 @@ exports.listBySearch = (req, res) => {
 };
 
 exports.photoProduct = (req, res, next) => {
+  // Check to see if photo exists in req.product
   if (req.product.photo.data) {
+    // set the content-type of req.product and send the product photo
     res.set("Content-Type", req.product.photo.contentType);
     return res.send(req.product.photo.data);
   }
@@ -260,9 +282,10 @@ exports.productListSearch = (req, res) => {
   // create query object to hold search value and category value
   const query = {};
   // assign search value to query.name
-  if (req.query.searchProduct) {
-    query.name = { $regex: req.query.searchProduct, $options: "i" };
-    // assigne category value to query.category
+  console.log(req.query.search);
+  if (req.query.search) {
+    query.name = { $regex: req.query.search, $options: "i" }; // "i" both lower case and upper case in string
+    // assign category value to query.category
     if (req.query.category && req.query.category != "All") {
       query.category = req.query.category;
     }
@@ -273,7 +296,7 @@ exports.productListSearch = (req, res) => {
         return res.status(200).json(products);
       } else {
         res.status(404).json({
-          error: errorHandler(err),
+          message: err.message,
         });
       }
     }).select("-photo");
@@ -281,6 +304,7 @@ exports.productListSearch = (req, res) => {
 };
 
 exports.decreaseQuantity = (req, res, next) => {
+  // get the products from order  and use map() to loops through the products array
   let bulkOps = req.body.order.products.map((item) => {
     return {
       updateOne: {

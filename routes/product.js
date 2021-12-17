@@ -44,6 +44,7 @@ router.post("/by/search", listBySearch);
 router.get("/product/photo/:productId", photoProduct);
 
 router.param("userId", userById);
+// whenever there's a 'productId' in the route parameter, call the productById method
 router.param("productId", productById);
 
 module.exports = router;

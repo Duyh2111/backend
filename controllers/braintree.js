@@ -2,6 +2,7 @@ const User = require("../models/user");
 const braintree = require("braintree");
 require("dotenv").config();
 
+// connect to braintree use
 const gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
   merchantId: process.env.BRAINTREE_MERCHANT_ID,
@@ -10,6 +11,8 @@ const gateway = new braintree.BraintreeGateway({
 });
 
 exports.Token = (req, res) => {
+  // Use the gateway variable and call .generate() method on it
+  // generate takes two arguments "empty object", "function"
   gateway.clientToken.generate({}, function (err, response) {
     if (!err) {
       res.send(response);
@@ -20,9 +23,11 @@ exports.Token = (req, res) => {
 };
 
 exports.Payment = (req, res) => {
+  // Get the payment method from client side:
   let nonceFromTheClient = req.body.paymentMethodNonce;
+  // Get the amount from client side
   let amountFromTheClient = req.body.amount;
-  // charge
+  // connecting to the braintree using gateway and call .transaction.sale() method on gateway
   let newTransaction = gateway.transaction.sale(
     {
       amount: amountFromTheClient,
